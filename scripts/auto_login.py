@@ -621,18 +621,22 @@ class AutoLogin:
         """保活 - 使用检测到的区域 URL"""
         self.log("保活...", "STEP")
         
-        # 使用检测到的区域 URL，如果没有则使用默认
+        # 使用检测到的区域 URL（通常是 us-east-1），如果没有则使用默认
         base_url = self.get_base_url()
-        self.log(f"使用区域 URL: {base_url}", "INFO")
+        self.log(f"使用自动检测 URL: {base_url}", "INFO")
         
+        # 定义你指定的日本区地址
+        japan_url = "https://ap-northeast-1.run.claw.cloud"
+
+        # 修改这里：除了访问默认检测到的，强制访问日本区
         pages_to_visit = [
-            (f"{base_url}/", "控制台"),
-            (f"{base_url}/apps", "应用"),
+            (f"{base_url}/", "控制台(默认)"),      # 保持原逻辑，访问默认跳转的区域
+            (f"{japan_url}/apps", "应用(日本区)"), # 强制访问日本区应用列表
         ]
         
-        # 如果检测到了区域，可以额外访问一些区域特定页面
+        # 如果检测到了区域，打印一下日志
         if self.detected_region:
-            self.log(f"当前区域: {self.detected_region}", "INFO")
+            self.log(f"当前检测区域: {self.detected_region}", "INFO")
         
         for url, name in pages_to_visit:
             try:
@@ -650,6 +654,7 @@ class AutoLogin:
                 self.log(f"访问 {name} 失败: {e}", "WARN")
         
         self.shot(page, "完成")
+
     
     def notify(self, ok, err=""):
         if not self.tg.ok:
